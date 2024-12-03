@@ -2,7 +2,6 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { motion } from "framer-motion";
 import { Upload, Loader2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
@@ -43,21 +42,17 @@ export default function UploadZone() {
     noClick: isUploading,
     noKeyboard: isUploading,
     disabled: isUploading,
+    accept: "directory",  // Allow directories to be dropped
+    multiple: true,        // Allow multiple files/folders
   });
-
-  // Extract dropzone props and exclude animation-related ones
-  const rootProps = getRootProps();
-  const { onAnimationStart, ...filteredRootProps } = rootProps;
 
   return (
     <Container className="py-12">
-      <motion.div
-        {...filteredRootProps}
+      <div
+        {...getRootProps()}
         className={`relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-12 text-center transition-colors ${
           isDragActive ? "border-primary" : "border-muted-foreground/25"
         }`}
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
       >
         <input {...getInputProps()} />
         {isUploading ? (
@@ -81,7 +76,7 @@ export default function UploadZone() {
             </p>
           </>
         )}
-      </motion.div>
+      </div>
     </Container>
   );
 }

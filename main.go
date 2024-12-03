@@ -7,6 +7,7 @@ import (
 
 	"lumine/integrations/monitoring"
 	"lumine/integrations/docker"
+	"lumine/integrations/providers"
 )
 
 func main() {

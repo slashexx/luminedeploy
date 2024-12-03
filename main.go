@@ -5,8 +5,8 @@ import (
 	"github.com/manifoldco/promptui"
 	"lumine/configs"
 
-	"lumine/integrations/providers"
 	"lumine/integrations/monitoring"
+	"lumine/integrations/providers"
 )
 
 func main() {
@@ -48,7 +48,6 @@ func main() {
 					Label: "Enter the name of your ECR repository",
 				}
 
-				
 				name, _ := prompt.Run()
 				prompt2 := promptui.Prompt{
 					Label: "Enter address :",
@@ -62,50 +61,48 @@ func main() {
 					fmt.Println("Successfully generated ECR Terraform config at ./outputs/aws/ecr")
 				}
 
-				// case "S3":
-				// 	bucketName := promptui.Prompt{
-				// 		Label: "Enter the name of your S3 bucket",
-				// 	}
-				// 	bucketName.Run()
+			case "S3":
+				prompt := promptui.Prompt{
+					Label: "Enter the name of your S3 bucket",
+				}
+				bucketName, _ := prompt.Run()
 
-				// 	prompt2 := promptui.Prompt{
-				// 		Label: "Enter address :",
-				// 	}
-	
-				// 	dirname, _ := prompt2.Run()
-	
+				prompt2 := promptui.Prompt{
+					Label: "Enter address :",
+				}
 
-				// 	err := providers.GenerateS3Config(bucketName, dirname)
-				// 	if err != nil {
-				// 		fmt.Println("Error generating S3 config:", err)
-				// 	} else {
-				// 		fmt.Println("Successfully generated S3 Terraform config at ./outputs/aws/s3")
-				// 	}
+				dirname, _ := prompt2.Run()
 
-				case "EKS":
-					prompt := promptui.Prompt{
-						Label: "Enter the name of your EKS cluster",
-					}
-					clusterName, _ := prompt.Run()
+				err := providers.GenerateS3Config(bucketName, dirname)
+				if err != nil {
+					fmt.Println("Error generating S3 config:", err)
+				} else {
+					fmt.Println("Successfully generated S3 Terraform config at ./outputs/aws/s3")
+				}
 
-					serverName, _ := configs.AWSServerMenu()
+			case "EKS":
+				prompt := promptui.Prompt{
+					Label: "Enter the name of your EKS cluster",
+				}
+				clusterName, _ := prompt.Run()
 
-					prompt2 := promptui.Prompt{
-						Label: "Enter the directory you want the terraform configs",
-					}
+				serverName, _ := configs.AWSServerMenu()
 
-					dirname, _ := prompt2.Run()
+				prompt2 := promptui.Prompt{
+					Label: "Enter the directory you want the terraform configs",
+				}
 
-					err := providers.GenerateEKSConfig(clusterName, serverName, dirname)
-					if err != nil {
-						fmt.Println("Error generating EKS config:", err)
-					} else {
-						fmt.Println("Successfully generated EKS Terraform config at ./outputs/aws/eks")
-					}
+				dirname, _ := prompt2.Run()
+
+				err := providers.GenerateEKSConfig(clusterName, serverName, dirname)
+				if err != nil {
+					fmt.Println("Error generating EKS config:", err)
+				} else {
+					fmt.Println("Successfully generated EKS Terraform config at ./outputs/aws/eks")
+				}
 			}
 
 		case "Setup Monitoring":
-			// Prompts for setting up monitoring (e.g., Prometheus)
 			monitoringChoice, err := configs.InputPrompt("Would you like to set up Prometheus monitoring? (y/n)")
 			if err != nil {
 				fmt.Println(configs.FormatError(err))
@@ -113,7 +110,6 @@ func main() {
 			}
 
 			if monitoringChoice == "y" || monitoringChoice == "Y" {
-				// Set up Prometheus by calling the monitoring setup function
 				err := monitoring.SetupPrometheusMonitoring()
 				if err != nil {
 					fmt.Println("Error setting up Prometheus:", err)

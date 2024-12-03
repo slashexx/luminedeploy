@@ -1,6 +1,6 @@
 
-resource "aws_eks_cluster" "bhen-kichut" {
-  name     = "bhen-kichut"
+resource "aws_eks_cluster" "eks-cluster" {
+  name     = "eks-cluster"
   role_arn = "arn:aws:iam::your_account_id:role/eks-service-role"
 
   vpc_config {

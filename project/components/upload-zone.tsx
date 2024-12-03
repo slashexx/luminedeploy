@@ -6,37 +6,50 @@ import { Upload, Loader2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+// import axios from "axios";
 
 export default function UploadZone() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
-  // Dropzone onDrop handler
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       setIsUploading(true);
       setProgress(0);
-
-      // Simulate file upload progress
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setIsUploading(false);
-            toast({
-              title: "Upload Complete",
-              description: "Your project is being analyzed and configured.",
-            });
-            return 100; // Ensure progress never exceeds 100
-          }
-          return prev + 10; // Simulate 10% progress every 500ms
+  
+      const formData = new FormData();
+      acceptedFiles.forEach((file) => formData.append("files", file));
+  
+      try {
+        const response = await fetch("http://localhost:8080/upload", { // Replace with your backend URL
+          method: "POST",
+          body: formData,
         });
-      }, 500);
+  
+        if (response.ok) {
+          toast({
+            title: "Upload Complete",
+            description: "Your project is being analyzed and configured.",
+          });
+        } else {
+          throw new Error("Upload failed. Please try again.");
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Could not upload file.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploading(false);
+        setProgress(100); // Simulate completion
+      }
     },
     [toast]
   );
-
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     noClick: isUploading,

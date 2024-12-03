@@ -13,6 +13,7 @@ func MainMenu() (string, error) {
 			"Generate Infrastructure",
 			"Estimate Costs",
 			"Setup Monitoring",
+			"Cloud providers",
 			"Exit",
 		},
 	}
@@ -50,4 +51,24 @@ func ConfirmPrompt(label string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+
+func AWSMenu() (string, error) {
+	menu := promptui.Select{
+		Label: "Select an AWS Service",
+		Items: []string{
+			"ECR",
+			"S3",
+			"EKS",
+			"Back to Main Menu",
+		},
+	}
+
+	_, result, err := menu.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
 }

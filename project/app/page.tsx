@@ -11,18 +11,20 @@ import { Pricing } from "@/components/marketing/Pricing";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b">
-        <div className="container flex h-16 items-center px-4">
+      <nav className="border-b bg-white py-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center space-x-2">
             <Zap className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Lumine</span>
+            <span className="text-2xl font-bold">Lumine</span>
           </div>
-          <div className="ml-auto flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" className="text-sm">
+                Sign In
+              </Button>
             </Link>
             <Link href="/signup">
-              <Button>Get Started</Button>
+              <Button className="text-sm">Get Started</Button>
             </Link>
           </div>
         </div>
@@ -55,7 +57,7 @@ export default function LandingPage() {
       <Pricing />
 
       <footer className="border-t py-12">
-        <div className="container px-4">
+        <div className="container px-4 mx-auto text-center">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
@@ -92,6 +94,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

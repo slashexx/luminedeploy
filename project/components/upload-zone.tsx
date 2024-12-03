@@ -42,7 +42,7 @@ export default function UploadZone() {
     noClick: isUploading,
     noKeyboard: isUploading,
     disabled: isUploading,
-    accept: "directory",  // Allow directories to be dropped
+    accept: { "application/x-directory": [] },  // Allow directories to be dropped
     multiple: true,        // Allow multiple files/folders
   });
 

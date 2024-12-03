@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Cloud, Shield, Zap } from "lucide-react";
+import Link from "next/link";
 import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
 import CostOverview from "@/components/dashboard/CostOverview";
 import DeploymentStatus from "@/components/dashboard/DeploymentStatus";
@@ -11,23 +12,39 @@ import SecurityOverview from "@/components/dashboard/SecurityOverview";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
-      <nav className="border-b">
-        <div className="container flex h-16 items-center px-4">
+    <>
+    
+    <nav className="border-b bg-white py-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center space-x-2">
             <Zap className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Lumine</span>
+            <span className="text-2xl font-bold">Lumine</span>
           </div>
-          <div className="ml-auto flex items-center space-x-4">
-            <Button variant="ghost">Documentation</Button>
-            <Button variant="ghost">Support</Button>
-            <Button>Get Started</Button>
+          <div className="flex items-center space-x-6">
+            <Link href="/docs">
+              <Button variant="ghost" className="text-sm">
+                Documentation
+              </Button>
+            </Link>
+            <Link href="/generate">
+              <Button variant="ghost" className="text-sm">
+                Generate
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="ghost" className="text-sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="text-sm">Get Started</Button>
+            </Link>
           </div>
         </div>
       </nav>
-
+    <main className="min-h-screen bg-background flex items-center justify-center">
       <div className="container px-4 py-6">
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Welcome to Lumine</h1>
           <p className="text-muted-foreground">
             Your all-in-one DevOps automation platform
@@ -99,5 +116,6 @@ export default function Home() {
         </Tabs>
       </div>
     </main>
+    </>
   );
 }

@@ -18,6 +18,16 @@ export default function LandingPage() {
             <span className="text-2xl font-bold">Lumine</span>
           </div>
           <div className="flex items-center space-x-6">
+            <Link href="/docs">
+              <Button variant="ghost" className="text-sm">
+                Documentation
+              </Button>
+            </Link>
+            <Link href="/generate">
+              <Button variant="ghost" className="text-sm">
+                Generate
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" className="text-sm">
                 Sign In
@@ -29,6 +39,7 @@ export default function LandingPage() {
           </div>
         </div>
       </nav>
+
 
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">

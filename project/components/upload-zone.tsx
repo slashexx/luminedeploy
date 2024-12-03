@@ -20,19 +20,21 @@ export default function UploadZone() {
       setProgress(0);
   
       const formData = new FormData();
-      acceptedFiles.forEach((file) => formData.append("files", file));
-  
+      acceptedFiles.forEach((file) => formData.append("file", file)); // Correct key is 'file'
+
+      console.log("Accepted Files: ", acceptedFiles);
+
       try {
         const response = await fetch("http://localhost:8080/upload", { // Replace with your backend URL
           method: "POST",
           body: formData,
         });
-  
         if (response.ok) {
           toast({
             title: "Upload Complete",
             description: "Your project is being analyzed and configured.",
           });
+          console.log("Requeest has been sent bhai")
         } else {
           throw new Error("Upload failed. Please try again.");
         }
@@ -55,7 +57,7 @@ export default function UploadZone() {
     noClick: isUploading,
     noKeyboard: isUploading,
     disabled: isUploading,
-    accept: { "application/x-directory": [] },  // Allow directories to be dropped
+    accept: { },  // Allow directories to be dropped
     multiple: true,        // Allow multiple files/folders
   });
 

@@ -1,38 +1,41 @@
 "use client";
 
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { motion } from 'framer-motion';
-import { Upload, Loader2 } from 'lucide-react';
-import { Container } from '@/components/ui/container';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { motion } from "framer-motion";
+import { Upload, Loader2 } from "lucide-react";
+import { Container } from "@/components/ui/container";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 export default function UploadZone() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setIsUploading(true);
-    setProgress(0);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setIsUploading(true);
+      setProgress(0);
 
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          toast({
-            title: "Upload Complete",
-            description: "Your project is being analyzed and configured.",
-          });
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
-  }, [toast]);
+      // Simulate upload progress
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setIsUploading(false);
+            toast({
+              title: "Upload Complete",
+              description: "Your project is being analyzed and configured.",
+            });
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 500);
+    },
+    [toast]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -41,12 +44,16 @@ export default function UploadZone() {
     disabled: isUploading,
   });
 
+  // Filter out potentially conflicting props
+  const rootProps = getRootProps();
+  const { onAnimationStart, ...filteredRootProps } = rootProps;
+
   return (
     <Container className="py-12">
       <motion.div
-        {...getRootProps()}
+        {...filteredRootProps}
         className={`relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-12 text-center transition-colors ${
-          isDragActive ? 'border-primary' : 'border-muted-foreground/25'
+          isDragActive ? "border-primary" : "border-muted-foreground/25"
         }`}
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
@@ -58,12 +65,16 @@ export default function UploadZone() {
             <div className="w-64">
               <Progress value={progress} className="h-2" />
             </div>
-            <p className="text-sm text-muted-foreground">Uploading your project...</p>
+            <p className="text-sm text-muted-foreground">
+              Uploading your project...
+            </p>
           </div>
         ) : (
           <>
             <Upload className="mb-4 h-12 w-12 text-muted-foreground" />
-            <h3 className="mb-2 text-lg font-medium">Drop your project folder here</h3>
+            <h3 className="mb-2 text-lg font-medium">
+              Drop your project folder here
+            </h3>
             <p className="text-sm text-muted-foreground">
               or click to select the folder you want to deploy
             </p>

@@ -137,7 +137,7 @@ func promptInput(label string, validateFunc promptui.ValidateFunc) string {
 	return result
 }
 
-func main() {
+func GenerateGithubActions() {
 	// Prompt user for input using PromptUI
 	workflowName := promptInput("Enter the Workflow Name", nil)
 	triggerEvents := promptInput("Enter the Trigger Events (e.g., push, pull_request)", nil)

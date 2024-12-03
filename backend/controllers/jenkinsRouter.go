@@ -1,14 +1,12 @@
-package jenkins
+package controllers
 
 import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 	"text/template"
-
-	"github.com/manifoldco/promptui"
+	"net/http"
 )
 
 // JenkinsParams struct to hold input parameters for the Jenkinsfile
@@ -20,7 +18,7 @@ type JenkinsParams struct {
 	AgentLabel   string
 }
 
-// generateJenkinsfile generates a Jenkinsfile based on the user's input
+// generateJenkinsfile generates a Jenkinsfile based on the given parameters
 func generateJenkinsfile(params JenkinsParams) string {
 	// Define a Jenkinsfile template
 	const jenkinsfileTemplate = `
@@ -69,42 +67,21 @@ pipeline {
 	return result.String()
 }
 
-// Function to prompt user input with validation
-func promptInput(label string, validateFunc promptui.ValidateFunc) string {
-	prompt := promptui.Prompt{
-		Label:    label,
-		Validate: validateFunc,
-	}
-
-	result, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v", err)
-	}
-	return result
-}
-
 // manipulateJenkinsfile function can modify the Jenkinsfile if needed (placeholder for future logic)
 func manipulateJenkinsfile(content string) string {
 	// Example: Replace placeholders or add additional stages dynamically
-	updatedContent := strings.ReplaceAll(content, "placeholder", "dynamic_value")
-	return updatedContent
+	return content // Keeping it simple for now
 }
 
-func GenerateJenkinsFile() {
-	// Prompt user for input using PromptUI
-	pipelineName := promptInput("Enter the Pipeline Name", nil)
-	branchName := promptInput("Enter the Branch Name (e.g., main)", nil)
-	buildCommand := promptInput("Enter the Build Command (e.g., go build)", nil)
-	testCommand := promptInput("Enter the Test Command (e.g., go test ./...)", nil)
-	agentLabel := promptInput("Enter the Agent Label (e.g., linux, docker, etc.)", nil)
-
-	// Set the parameters for the Jenkinsfile
+// GenerateJenkinsFile is a main function for routing without parameters or return type
+func GenerateJenkinsFile(w http.ResponseWriter, r *http.Request) {
+	// Fixed default values for the Jenkinsfile
 	params := JenkinsParams{
-		PipelineName: pipelineName,
-		BranchName:   branchName,
-		BuildCommand: buildCommand,
-		TestCommand:  testCommand,
-		AgentLabel:   agentLabel,
+		PipelineName: "DefaultPipeline",
+		BranchName:   "main",
+		BuildCommand: "go build",
+		TestCommand:  "go test ./...",
+		AgentLabel:   "linux",
 	}
 
 	// Generate the Jenkinsfile

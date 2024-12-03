@@ -1,22 +1,31 @@
 package main
 
 import (
-	// "net/http"
+	"log"
+	"net/http"
+	// "time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/gorilla/mux"
+	"lumine/backend/routes"
 )
 
 func main() {
-	e := echo.New()
+	// Initialize the Gorilla Mux router
+	r := mux.NewRouter()
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	// Register API routes
+	routes.RegisterRoutes(r)
 
-	// e.GET("/", serveFrontend) // Serve the frontend in production.
-	// e.GET("/api/health", healthCheck)
-	// e.GET("/api/users", getUsers)
+	// Set up a server with custom configurations
+	server := &http.Server{
+		Handler:      r,
+		Addr:         ":8080",
+		// WriteTimeout: 15 * time.Second,
+		// ReadTimeout:  15 * time.Second,
+		// IdleTimeout:  60 * time.Second,
+	}
 
-	e.Logger.Fatal(e.Start(":8080"))
+	log.Println("Server is running on http://localhost:8080")
+	// Start the server
+	log.Fatal(server.ListenAndServe())
 }

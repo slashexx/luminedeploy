@@ -15,6 +15,7 @@ func MainMenu() (string, error) {
 			"Estimate Costs",
 			"Setup Monitoring",
 			"Cloud providers",
+			"Fetch from github repo",
 			"Exit",
 		},
 	}
@@ -48,12 +49,11 @@ func ConfirmPrompt(label string) (bool, error) {
 
 	_, err := prompt.Run()
 	if err != nil {
-		return false, nil 
+		return false, nil
 	}
 
 	return true, nil
 }
-
 
 func AWSMenu() (string, error) {
 	menu := promptui.Select{

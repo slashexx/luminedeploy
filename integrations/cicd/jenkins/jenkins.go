@@ -1,4 +1,4 @@
-package main
+package jenkins
 
 import (
 	"bytes"
@@ -90,7 +90,7 @@ func manipulateJenkinsfile(content string) string {
 	return updatedContent
 }
 
-func main() {
+func GenerateJenkinsFile() {
 	// Prompt user for input using PromptUI
 	pipelineName := promptInput("Enter the Pipeline Name", nil)
 	branchName := promptInput("Enter the Branch Name (e.g., main)", nil)

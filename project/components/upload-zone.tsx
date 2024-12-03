@@ -53,6 +53,7 @@ export default function UploadZone() {
         className={`relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-12 text-center transition-colors ${
           isDragActive ? "border-primary" : "border-muted-foreground/25"
         }`}
+        // whileTap={{ scale: 0.99 }}
       >
         <input {...getInputProps()} />
         {isUploading ? (

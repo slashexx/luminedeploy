@@ -13,12 +13,13 @@ export default function UploadZone() {
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
+  // Dropzone onDrop handler
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       setIsUploading(true);
       setProgress(0);
 
-      // Simulate upload progress
+      // Simulate file upload progress
       const interval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
@@ -28,9 +29,9 @@ export default function UploadZone() {
               title: "Upload Complete",
               description: "Your project is being analyzed and configured.",
             });
-            return 100;
+            return 100; // Ensure progress never exceeds 100
           }
-          return prev + 10;
+          return prev + 10; // Simulate 10% progress every 500ms
         });
       }, 500);
     },
@@ -44,7 +45,7 @@ export default function UploadZone() {
     disabled: isUploading,
   });
 
-  // Filter out potentially conflicting props
+  // Extract dropzone props and exclude animation-related ones
   const rootProps = getRootProps();
   const { onAnimationStart, ...filteredRootProps } = rootProps;
 

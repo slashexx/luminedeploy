@@ -6,6 +6,8 @@ import { Upload, Loader2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/router";
+import Link from "next/link";
 // import axios from "axios";
 
 export default function UploadZone() {
@@ -18,7 +20,7 @@ export default function UploadZone() {
     async (acceptedFiles: File[]) => {
       setIsUploading(true);
       setProgress(0);
-  
+
       const formData = new FormData();
       acceptedFiles.forEach((file) => formData.append("file", file)); // Correct key is 'file'
 
@@ -34,7 +36,10 @@ export default function UploadZone() {
             title: "Upload Complete",
             description: "Your project is being analyzed and configured.",
           });
-          console.log("Requeest has been sent bhai")
+
+          console.log("Requeest has been sent bhai");
+
+          window.location.href = "/files"
         } else {
           throw new Error("Upload failed. Please try again.");
         }
@@ -51,13 +56,13 @@ export default function UploadZone() {
     },
     [toast]
   );
-  
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     noClick: isUploading,
     noKeyboard: isUploading,
     disabled: isUploading,
-    accept: { },  // Allow directories to be dropped
+    accept: {},  // Allow directories to be dropped
     multiple: true,        // Allow multiple files/folders
   });
 
@@ -65,10 +70,9 @@ export default function UploadZone() {
     <Container className="py-12">
       <div
         {...getRootProps()}
-        className={`relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-12 text-center transition-colors ${
-          isDragActive ? "border-primary" : "border-muted-foreground/25"
-        }`}
-        // whileTap={{ scale: 0.99 }}
+        className={`relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 p-12 text-center transition-colors ${isDragActive ? "border-primary" : "border-muted-foreground/25"
+          }`}
+      // whileTap={{ scale: 0.99 }}
       >
         <input {...getInputProps()} />
         {isUploading ? (

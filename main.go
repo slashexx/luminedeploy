@@ -6,6 +6,7 @@ import (
 	"lumine/configs"
 
 	"lumine/integrations/providers"
+	"lumine/integrations/monitoring"
 )
 
 func main() {
@@ -84,6 +85,26 @@ func main() {
 				// 	} else {
 				// 		fmt.Println("Successfully generated EKS Terraform config at ./outputs/aws/eks")
 				// 	}
+			}
+
+		case "Setup Monitoring":
+			// Prompts for setting up monitoring (e.g., Prometheus)
+			monitoringChoice, err := configs.InputPrompt("Would you like to set up Prometheus monitoring? (y/n)")
+			if err != nil {
+				fmt.Println(configs.FormatError(err))
+				break
+			}
+
+			if monitoringChoice == "y" || monitoringChoice == "Y" {
+				// Set up Prometheus by calling the monitoring setup function
+				err := monitoring.SetupPrometheusMonitoring()
+				if err != nil {
+					fmt.Println("Error setting up Prometheus:", err)
+				} else {
+					fmt.Println("Prometheus setup complete!")
+				}
+			} else {
+				fmt.Println("Skipping monitoring setup.")
 			}
 		default:
 			fmt.Println("Invalid choice, returning to main menu...")

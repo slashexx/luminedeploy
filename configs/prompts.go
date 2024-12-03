@@ -10,6 +10,7 @@ func MainMenu() (string, error) {
 		Label: "Select an Action",
 		Items: []string{
 			"Setup CI/CD",
+			"Generate Dockerfile",
 			"Generate Infrastructure",
 			"Estimate Costs",
 			"Setup Monitoring",

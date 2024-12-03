@@ -38,6 +38,11 @@ export default function GenerateConfigsPage() {
                     path: "/generate/github-actions",
                     icon: Github,
                   },
+                  {
+                    name: "Jenkins",
+                    path: "/generate/Jenkins",
+                    icon: Github,
+                  },
                 ]}
               />
             </ConfigCardWrapper>

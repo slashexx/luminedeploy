@@ -49,7 +49,7 @@ export default function PrometheusPage() {
         description="Generate a Prometheus configuration file for monitoring"
         fields={fields}
         onSubmit={handleSubmit}
-      />  
+      />
     </div>
   );
 }

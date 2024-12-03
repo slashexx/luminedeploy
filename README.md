@@ -1,4 +1,4 @@
-# Lumine - DevOps-as-a-Service CLI
+# Lumine - The DaaS (Devops-as-a-service) CLI
 
 Lumine is a CLI tool that simplifies the process of setting up DevOps automation for startups and developers. With Lumine, you can easily configure CI/CD pipelines, manage cloud infrastructure (AWS, ECR, S3, EKS), and estimate costs—all without the need for a dedicated DevOps team. The tool integrates with cloud providers, CI/CD services, and monitoring tools, allowing developers to focus on building applications rather than worrying about infrastructure setup.
 

@@ -12,24 +12,51 @@ export default function GitHubActionsPage() {
       required: true,
     },
     {
-      name: "branch",
-      label: "Branch",
+      name: "triggerEvents",
+      label: "Trigger Events",
       type: "text" as const,
-      placeholder: "main",
+      placeholder: "push, pull_request",
       required: true,
     },
     {
-      name: "nodeVersion",
-      label: "Node.js Version",
+      name: "goVersion",
+      label: "Go Version",
       type: "text" as const,
-      placeholder: "14.x",
+      placeholder: "1.18",
+      required: true,
+    },
+    {
+      name: "buildCommand",
+      label: "Build Command",
+      type: "text" as const,
+      placeholder: "go build -v",
+      required: true,
+    },
+    {
+      name: "testCommand",
+      label: "Test Command",
+      type: "text" as const,
+      placeholder: "go test -v",
       required: true,
     },
   ];
 
-  const handleSubmit = (data: Record<string, string>) => {
-    console.log("GitHub Actions config:", data);
-  };
+  const handleSubmit = () => {}
+  // const handleSubmit = async (data: Record<string, string>) => {
+  //   console.log("GitHub Actions config:", data);
+    
+  //   // You can make a request to your backend with these data, for example:
+  //   const response = await fetch('/generate-github-action', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify(data),
+  //   });
+
+  //   const yaml = await response.text();
+  //   console.log("Generated YAML:", yaml);
+  // };
 
   return (
     <div className="container px-4 py-6">

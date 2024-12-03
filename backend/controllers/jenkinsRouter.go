@@ -67,38 +67,55 @@ pipeline {
 	return result.String()
 }
 
-// manipulateJenkinsfile function can modify the Jenkinsfile if needed (placeholder for future logic)
-func manipulateJenkinsfile(content string) string {
-	// Example: Replace placeholders or add additional stages dynamically
-	return content // Keeping it simple for now
-}
-
-// GenerateJenkinsFile is a main function for routing without parameters or return type
+// GenerateJenkinsFile handles the HTTP request and generates the Jenkinsfile based on user input
 func GenerateJenkinsFile(w http.ResponseWriter, r *http.Request) {
-	// Fixed default values for the Jenkinsfile
-	params := JenkinsParams{
-		PipelineName: "DefaultPipeline",
-		BranchName:   "main",
-		BuildCommand: "go build",
-		TestCommand:  "go test ./...",
-		AgentLabel:   "linux",
+	// Get parameters from the request (using URL query params for simplicity)
+	pipelineName := r.URL.Query().Get("pipeline_name")
+	branchName := r.URL.Query().Get("branch_name")
+	buildCommand := r.URL.Query().Get("build_command")
+	testCommand := r.URL.Query().Get("test_command")
+	agentLabel := r.URL.Query().Get("agent_label")
+
+	// Use default values if parameters are not provided
+	if pipelineName == "" {
+		pipelineName = "DefaultPipeline"
+	}
+	if branchName == "" {
+		branchName = "main"
+	}
+	if buildCommand == "" {
+		buildCommand = "go build"
+	}
+	if testCommand == "" {
+		testCommand = "go test ./..."
+	}
+	if agentLabel == "" {
+		agentLabel = "linux"
 	}
 
-	// Generate the Jenkinsfile
-	initialJenkinsfile := generateJenkinsfile(params)
+	// Set up the parameters to be passed to the Jenkinsfile template
+	params := JenkinsParams{
+		PipelineName: pipelineName,
+		BranchName:   branchName,
+		BuildCommand: buildCommand,
+		TestCommand:  testCommand,
+		AgentLabel:   agentLabel,
+	}
 
-	// Manipulate the Jenkinsfile if needed
-	finalJenkinsfile := manipulateJenkinsfile(initialJenkinsfile)
+	// Generate the Jenkinsfile based on the provided parameters
+	jenkinsfile := generateJenkinsfile(params)
 
-	// Define the output file path
-	outputFile := "Jenkinsfile"
+	// Write the generated Jenkinsfile to the response
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(jenkinsfile))
 
-	// Write the final Jenkinsfile to a file
-	err := ioutil.WriteFile(outputFile, []byte(finalJenkinsfile), 0644)
+	// Optionally, save the Jenkinsfile to a file (for example, "Jenkinsfile")
+	err := ioutil.WriteFile("Jenkinsfile", []byte(jenkinsfile), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Confirmation message
-	fmt.Printf("Jenkinsfile has been written to: %s\n", outputFile)
+	fmt.Printf("Jenkinsfile has been written to: Jenkinsfile\n")
 }

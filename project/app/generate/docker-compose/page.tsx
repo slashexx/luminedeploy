@@ -8,28 +8,28 @@ export default function DockerComposePage() {
       name: "serviceName",
       label: "Service Name",
       type: "text" as const,
-      placeholder: "web",
-      required: true,
+      placeholder: "prometheus",
+      required: false,
     },
     {
       name: "image",
       label: "Image Name",
       type: "text" as const,
-      placeholder: "my-app:latest",
-      required: true,
+      placeholder: "prom/prometheus",
+      required: false,
     },
     {
       name: "ports",
       label: "Port Mapping",
       type: "text" as const,
-      placeholder: "8080:80",
-      required: true,
+      placeholder: "9090:9090",
+      required: false,
     },
     {
       name: "volumes",
       label: "Volumes",
       type: "textarea" as const,
-      placeholder: "./data:/data",
+      placeholder: "./prometheus.yml:/etc/prometheus/prometheus.yml",
       required: false,
     },
     {
@@ -41,9 +41,22 @@ export default function DockerComposePage() {
     },
   ];
 
-  const handleSubmit = (data: Record<string, string>) => {
-    console.log("Docker Compose config:", data);
-  };
+  const handleSubmit = () => {}
+  // const handleSubmit = async (data: Record<string, string>) => {
+  //   console.log("Docker Compose config:", data);
+
+  //   try {
+  //     const response = await fetch("/api/docker-compose", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(data),
+  //     });
+  //     const result = await response.json();
+  //     console.log("Result:", result);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
   return (
     <div className="container px-4 py-6">

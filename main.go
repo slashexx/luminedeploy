@@ -82,17 +82,26 @@ func main() {
 				// 		fmt.Println("Successfully generated S3 Terraform config at ./outputs/aws/s3")
 				// 	}
 
-				// case "EKS":
-				// 	clusterName, _ := promptui.Prompt{
-				// 		Label: "Enter the name of your EKS cluster",
-				// 	}.Run()
+				case "EKS":
+					prompt := promptui.Prompt{
+						Label: "Enter the name of your EKS cluster",
+					}
+					clusterName, _ := prompt.Run()
 
-				// 	err := providers.GenerateEKSConfig(clusterName, "us-east-1", "./outputs/aws/eks")
-				// 	if err != nil {
-				// 		fmt.Println("Error generating EKS config:", err)
-				// 	} else {
-				// 		fmt.Println("Successfully generated EKS Terraform config at ./outputs/aws/eks")
-				// 	}
+					serverName, _ := configs.AWSServerMenu()
+
+					prompt2 := promptui.Prompt{
+						Label: "Enter the directory you want the terraform configs",
+					}
+
+					dirname, _ := prompt2.Run()
+
+					err := providers.GenerateEKSConfig(clusterName, serverName, dirname)
+					if err != nil {
+						fmt.Println("Error generating EKS config:", err)
+					} else {
+						fmt.Println("Successfully generated EKS Terraform config at ./outputs/aws/eks")
+					}
 			}
 
 		case "Setup Monitoring":

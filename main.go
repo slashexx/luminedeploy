@@ -6,6 +6,7 @@ import (
 	"lumine/configs"
 
 	"lumine/integrations/monitoring"
+	"lumine/integrations/docker"
 	"lumine/integrations/providers"
 )
 
@@ -118,6 +119,21 @@ func main() {
 				}
 			} else {
 				fmt.Println("Skipping monitoring setup.")
+			}
+		case "Generate Dockerfile":
+			// Prompt the user for the root directory
+			rootDir, err := configs.InputPrompt("Enter the root directory for the Dockerfile")
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				continue
+			}
+
+			// Generate the Dockerfile in the specified directory
+			err = docker.GenerateGoDockerfile(rootDir)
+			if err != nil {
+				fmt.Printf("Failed to generate Dockerfile: %v\n", err)
+			} else {
+				fmt.Printf("Dockerfile successfully generated in: %s\n", rootDir)
 			}
 		case "Exit":
 			return

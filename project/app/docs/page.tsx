@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link"; // Import Link for navigation
+import { Zap } from "lucide-react"; // Assuming you have this imported for the icon
+import { Button } from "@/components/ui/button"; // Adjust if needed for your button component
 
 const tabs = [
   { id: "overview", label: "Overview" },
@@ -57,30 +60,63 @@ const DocumentationPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <aside className="w-1/4 bg-white p-6 shadow-md border-r border-gray-200">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Documentation</h2>
-        <ul className="space-y-4">
-          {tabs.map((tab) => (
-            <li key={tab.id}>
-              <button
-                className={`block w-full text-left text-lg px-4 py-3 rounded-lg transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? "bg-blue-100 text-blue-600 font-semibold shadow-sm"
-                    : "hover:bg-gray-100 text-gray-800"
-                }`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
+    <div className="flex flex-col h-screen">
+      {/* Navbar */}
+      <nav className="border-b bg-white py-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-6">
+          <div className="flex items-center space-x-2">
+            <Zap className="h-6 w-6 text-primary" />
+            <span className="text-2xl font-bold">Lumine</span>
+          </div>
+          <div className="flex items-center space-x-6">
+            <Link href="/docs">
+              <Button variant="ghost" className="text-sm">
+                Documentation
+              </Button>
+            </Link>
+            <Link href="/generate">
+              <Button variant="ghost" className="text-sm">
+                Generate
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="ghost" className="text-sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="text-sm">Get Started</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-      {/* Content Area */}
-      <main className="w-3/4 p-8 bg-gray-50 overflow-y-auto">{renderContent()}</main>
+      {/* Documentation Content */}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <aside className="w-1/4 bg-white p-6 shadow-md border-r border-gray-200">
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">Documentation</h2>
+          <ul className="space-y-4">
+            {tabs.map((tab) => (
+              <li key={tab.id}>
+                <button
+                  className={`block w-full text-left text-lg px-4 py-3 rounded-lg transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? "bg-blue-100 text-blue-600 font-semibold shadow-sm"
+                      : "hover:bg-gray-100 text-gray-800"
+                  }`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Content Area */}
+        <main className="w-3/4 p-8 bg-gray-50 overflow-y-auto">{renderContent()}</main>
+      </div>
     </div>
   );
 };

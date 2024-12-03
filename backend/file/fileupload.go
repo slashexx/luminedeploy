@@ -14,7 +14,7 @@ import (
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Allow all origins (change to specific origin if needed)
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -69,55 +69,69 @@ func main() {
 	handler := enableCORS(r)
 	http.ListenAndServe(":8080", handler)
 }
+
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-    // Parse the multipart form
+    // Ensure uploads directory exists
+    uploadDir := "./uploads"
+    if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+        fmt.Println("Error creating uploads directory:", err)
+        http.Error(w, "Failed to create uploads directory", http.StatusInternalServerError)
+        return
+    }
+
+    // Parse multipart form
     if err := r.ParseMultipartForm(10 << 20); err != nil {
-        http.Error(w, "File too large or invalid request: "+err.Error(), http.StatusBadRequest)
+        fmt.Println("Error parsing form:", err)
+        http.Error(w, "Invalid request: "+err.Error(), http.StatusBadRequest)
         return
     }
 
     files := r.MultipartForm.File["file"]
-    var filePaths []string
+    if len(files) == 0 {
+        fmt.Println("No files found in request")
+        http.Error(w, "No files uploaded", http.StatusBadRequest)
+        return
+    }
 
     for _, fileHeader := range files {
         file, err := fileHeader.Open()
         if err != nil {
+            fmt.Println("Error opening file:", err)
             http.Error(w, "Failed to read file: "+err.Error(), http.StatusBadRequest)
             return
         }
         defer file.Close()
 
-        // Save file temporarily
-        tempFilePath := filepath.Join("./uploads", fileHeader.Filename)
-        outFile, err := os.Create(tempFilePath)
+        // Save uploaded file
+        filePath := filepath.Join(uploadDir, fileHeader.Filename)
+        outFile, err := os.Create(filePath)
         if err != nil {
+            fmt.Println("Error creating file:", err)
             http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
             return
         }
         defer outFile.Close()
 
-        io.Copy(outFile, file)
+        if _, err = io.Copy(outFile, file); err != nil {
+            fmt.Println("Error writing file:", err)
+            http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
+            return
+        }
 
-        // Append to filePaths for project detection
-        filePaths = append(filePaths, tempFilePath)
+        // Optionally unzip if file is a ZIP archive
+        if filepath.Ext(filePath) == ".zip" {
+            extractDir := filepath.Join(uploadDir, fileHeader.Filename+"_extracted")
+            if err := unzip(filePath, extractDir); err != nil {
+                fmt.Println("Error unzipping file:", err)
+                http.Error(w, "Failed to extract file: "+err.Error(), http.StatusInternalServerError)
+                return
+            }
+        }
     }
 
-    // Detect Go project
-    isGoProject, mainFile, err := detectGoProject(filePaths)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-
-    if isGoProject {
-        fmt.Println("Go project detected with main file:", mainFile)
-        // Generate Dockerfile here or pass files to the next step
-    } else {
-        fmt.Println("No Go project detected")
-    }
-
+    fmt.Println("All files uploaded and processed successfully")
     w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Files uploaded successfully!"))
+    w.Write([]byte("Files uploaded successfully"))
 }
 
 func unzip(src string, dest string) error {

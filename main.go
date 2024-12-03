@@ -48,11 +48,11 @@ func main() {
 					Label: "Enter the name of your ECR repository",
 				}
 
+				
+				name, _ := prompt.Run()
 				prompt2 := promptui.Prompt{
 					Label: "Enter address :",
 				}
-
-				name, _ := prompt.Run()
 				dirname, _ := prompt2.Run()
 
 				err := providers.GenerateECRConfig(name, dirname)
@@ -63,11 +63,19 @@ func main() {
 				}
 
 				// case "S3":
-				// 	bucketName, _ := promptui.Prompt{
+				// 	bucketName := promptui.Prompt{
 				// 		Label: "Enter the name of your S3 bucket",
-				// 	}.Run()
+				// 	}
+				// 	bucketName.Run()
 
-				// 	err := providers.GenerateS3Config(bucketName, "./outputs/aws/s3")
+				// 	prompt2 := promptui.Prompt{
+				// 		Label: "Enter address :",
+				// 	}
+	
+				// 	dirname, _ := prompt2.Run()
+	
+
+				// 	err := providers.GenerateS3Config(bucketName, dirname)
 				// 	if err != nil {
 				// 		fmt.Println("Error generating S3 config:", err)
 				// 	} else {
@@ -106,6 +114,8 @@ func main() {
 			} else {
 				fmt.Println("Skipping monitoring setup.")
 			}
+		case "Exit":
+			return
 		default:
 			fmt.Println("Invalid choice, returning to main menu...")
 		}

@@ -9,21 +9,21 @@ export default function PrometheusPage() {
       label: "Scrape Interval",
       type: "text" as const,
       placeholder: "15s",
-      required: true,
+      required: false,
     },
     {
       name: "evaluationInterval",
       label: "Evaluation Interval",
       type: "text" as const,
       placeholder: "15s",
-      required: true,
+      required: false,
     },
     {
       name: "targets",
       label: "Monitoring Targets",
       type: "textarea" as const,
-      placeholder: "localhost:8080\nlocalhost:9090",
-      required: true,
+      placeholder: "localhost:9100\nlocalhost:8080",
+      required: false,
     },
     {
       name: "retention",
@@ -34,13 +34,26 @@ export default function PrometheusPage() {
         { value: "30d", label: "30 days" },
         { value: "60d", label: "60 days" },
       ],
-      required: true,
+      required: false,
     },
   ];
 
-  const handleSubmit = (data: Record<string, string>) => {
-    console.log("Prometheus config:", data);
-  };
+  const handleSubmit = () => {}
+  // const handleSubmit = async (data: Record<string, string>) => {
+  //   console.log("Prometheus config:", data);
+
+  //   try {
+  //     const response = await fetch("/api/prometheus", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(data),
+  //     });
+  //     const result = await response.json();
+  //     console.log("Result:", result);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
   return (
     <div className="container px-4 py-6">

@@ -3,14 +3,14 @@ package controllers
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
-	// "github.com/manifoldco/promptui"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
+	// "strings"
 	"text/template"
 )
 
@@ -84,9 +84,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: go-<runner_os>-go-{{ .CacheKey }}
+          key: go-${{ runner.os }}-go-{{ .CacheKey }}
           restore-keys: |
-            go-<runner_os>-
+            go-${{ runner.os }}-
 
       - name: Install dependencies
         run: go mod tidy
@@ -115,23 +115,15 @@ jobs:
 	return result.String()
 }
 
-// manipulateYAMLToAddRunnerOS function dynamically adds the runner.os variable to YAML
-func manipulateYAMLToAddRunnerOS(yamlContent string) string {
-	// Replace <runner_os> placeholder with the actual value for runner.os
-	updatedYAML := strings.ReplaceAll(yamlContent, "<runner_os>", "${{ runner.os }}")
-
-	// Return the modified YAML content
-	return updatedYAML
-}
-
 // GitHubActionHandler will be the HTTP handler function that generates the GitHub Actions YAML
 func GitHubActionHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract parameters from query or form (assuming URL parameters for simplicity)
-	workflowName := r.URL.Query().Get("workflow_name")
-	triggerEvents := r.URL.Query().Get("trigger_events")
-	goVersion := r.URL.Query().Get("go_version")
-	buildCommand := r.URL.Query().Get("build_command")
-	testCommand := r.URL.Query().Get("test_command")
+	// Decode the incoming JSON request body
+	var params GitHubActionParams
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error decoding request body: %v", err), http.StatusBadRequest)
+		return
+	}
 
 	// Example pattern for hash calculation
 	hash, err := hashFiles("**/go.sum")
@@ -141,20 +133,10 @@ func GitHubActionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the computed hash as part of the GitHub Action parameters
-	params := GitHubActionParams{
-		WorkflowName:  workflowName,
-		TriggerEvents: triggerEvents,
-		GoVersion:     goVersion,
-		BuildCommand:  buildCommand,
-		TestCommand:   testCommand,
-		CacheKey:      hash,
-	}
+	params.CacheKey = hash
 
-	// Generate initial YAML without runner.os placeholder
-	initialYAML := generateGitHubActionYAML(params)
-
-	// Manipulate the YAML to add runner.os dynamically
-	finalYAML := manipulateYAMLToAddRunnerOS(initialYAML)
+	// Generate the GitHub Actions YAML
+	finalYAML := generateGitHubActionYAML(params)
 
 	// Write the final YAML to the response
 	w.Header().Set("Content-Type", "text/plain")

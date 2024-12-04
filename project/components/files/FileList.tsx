@@ -1,6 +1,7 @@
 'use client';
 
-import { FileData } from '@/types/files';
+import { FileData } from '@/app/types/files';
+// import { FileData } from '@/types/files';
 import { FileIcon } from 'lucide-react';
 
 interface FileListProps {

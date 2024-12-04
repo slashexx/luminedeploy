@@ -24,6 +24,7 @@ func RegisterRoutes(r *mux.Router) {
 	api.HandleFunc("/setup-ecr-config", controllers.GenerateECRConfig).Methods("POST")
 	api.HandleFunc("/setup-eks-config", controllers.GenerateEKSConfig).Methods("POST")
 	api.HandleFunc("/setup-sss-config", controllers.GenerateS3Config).Methods("POST")
+	api.HandleFunc("/download-zip", controllers.HandleDownloadZip).Methods("GET")
 
 	// Health check route
 	api.HandleFunc("/health", HealthCheck).Methods("GET")
@@ -33,4 +34,3 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	response := map[string]string{"status": "healthy"}
 	json.NewEncoder(w).Encode(response)
 }
-

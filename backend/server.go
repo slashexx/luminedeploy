@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
+
 	// "time"
 
-	"github.com/gorilla/mux"
 	"lumine/backend/routes"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -18,8 +20,8 @@ func main() {
 
 	// Set up a server with custom configurations
 	server := &http.Server{
-		Handler:      r,
-		Addr:         ":8080",
+		Handler: r,
+		Addr:    ":8080",
 		// WriteTimeout: 15 * time.Second,
 		// ReadTimeout:  15 * time.Second,
 		// IdleTimeout:  60 * time.Second,

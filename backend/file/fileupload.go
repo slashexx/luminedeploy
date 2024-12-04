@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,12 +58,13 @@ func detectGoProject(files []string) (bool, string, error) {
 	return false, "", fmt.Errorf("incomplete Go project")
 }
 
-
 func main() {
 	r := mux.NewRouter()
 
 	// Route to handle file uploads
 	r.HandleFunc("/upload", uploadHandler).Methods("POST")
+	r.HandleFunc("/files", listFilesHandler).Methods("GET")
+	// r.PathPrefix("/files/").Handler(http.StripPrefix("/files/", http.FileServer(http.Dir("./uploads"))))
 
 	// Start the server
 	fmt.Println("Server running on :8080")
@@ -71,67 +73,140 @@ func main() {
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-    // Ensure uploads directory exists
-    uploadDir := "./uploads"
-    if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-        fmt.Println("Error creating uploads directory:", err)
-        http.Error(w, "Failed to create uploads directory", http.StatusInternalServerError)
+	uploadDir := "./uploads"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		http.Error(w, "Failed to create uploads directory", http.StatusInternalServerError)
+		return
+	}
+
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Invalid request: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	files := r.MultipartForm.File["file"]
+	if len(files) == 0 {
+		http.Error(w, "No files uploaded", http.StatusBadRequest)
+		return
+	}
+
+	var uploadedFiles []string
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			http.Error(w, "Failed to read file: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		filePath := filepath.Join(uploadDir, fileHeader.Filename)
+		outFile, err := os.Create(filePath)
+		if err != nil {
+			http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer outFile.Close()
+
+		if _, err = io.Copy(outFile, file); err != nil {
+			http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		uploadedFiles = append(uploadedFiles, filePath)
+	}
+
+	// Detect Go project and generate files
+	hasGoMod, _, err := detectGoProject(uploadedFiles)
+	if err != nil {
+		http.Error(w, "Project validation failed: "+err.Error(), http.StatusBadRequest)
+		return
+	} else {
+		fmt.Println("Go project detected")
+	}
+
+    dockerFilePath := filepath.Join(uploadDir, "Dockerfiles")
+    if err := os.MkdirAll(dockerFilePath, os.ModePerm); err != nil {
+        fmt.Println("Failed to create Dockerfiles directory: ", err)
+        http.Error(w, "Failed to create Dockerfiles directory: "+err.Error(), http.StatusInternalServerError)
         return
     }
 
-    // Parse multipart form
-    if err := r.ParseMultipartForm(10 << 20); err != nil {
-        fmt.Println("Error parsing form:", err)
-        http.Error(w, "Invalid request: "+err.Error(), http.StatusBadRequest)
-        return
-    }
-
-    files := r.MultipartForm.File["file"]
-    if len(files) == 0 {
-        fmt.Println("No files found in request")
-        http.Error(w, "No files uploaded", http.StatusBadRequest)
-        return
-    }
-
-    for _, fileHeader := range files {
-        file, err := fileHeader.Open()
+    if hasGoMod {
+        _, err := generateGoDockerfile(dockerFilePath)
         if err != nil {
-            fmt.Println("Error opening file:", err)
-            http.Error(w, "Failed to read file: "+err.Error(), http.StatusBadRequest)
+            fmt.Println("Failed to generate Dockerfile: ", err)
+            http.Error(w, "Failed to generate Dockerfile: "+err.Error(), http.StatusInternalServerError)
+            return
+        } else {
+            fmt.Println("Dockerfiles generated")
+        }
+
+        kubeConfigsPath := filepath.Join(uploadDir, "KubernetesConfigs")
+        if err := os.MkdirAll(kubeConfigsPath, os.ModePerm); err != nil {
+            fmt.Println("Failed to create KubernetesConfigs directory: ", err)
+            http.Error(w, "Failed to create KubernetesConfigs directory: "+err.Error(), http.StatusInternalServerError)
             return
         }
-        defer file.Close()
 
-        // Save uploaded file
-        filePath := filepath.Join(uploadDir, fileHeader.Filename)
-        outFile, err := os.Create(filePath)
+        _, _, err = generateKubernetesManifests(kubeConfigsPath, "your-image-name")
         if err != nil {
-            fmt.Println("Error creating file:", err)
-            http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
+            http.Error(w, "Failed to generate Kubernetes manifests: "+err.Error(), http.StatusInternalServerError)
             return
-        }
-        defer outFile.Close()
-
-        if _, err = io.Copy(outFile, file); err != nil {
-            fmt.Println("Error writing file:", err)
-            http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
-            return
-        }
-
-        // Optionally unzip if file is a ZIP archive
-        if filepath.Ext(filePath) == ".zip" {
-            extractDir := filepath.Join(uploadDir, fileHeader.Filename+"_extracted")
-            if err := unzip(filePath, extractDir); err != nil {
-                fmt.Println("Error unzipping file:", err)
-                http.Error(w, "Failed to extract file: "+err.Error(), http.StatusInternalServerError)
-                return
-            }
+        } else {
+            fmt.Print("Kubernetes manifests generated")
         }
     }
 
-    fmt.Println("All files uploaded and processed successfully")
-    w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Files uploaded successfully"))
+
+	// Zip the project folder
+	zipPath := filepath.Join(uploadDir, "project.zip")
+	err = zipFiles(uploadedFiles, zipPath)
+	if err != nil {
+		http.Error(w, "Failed to create zip: "+err.Error(), http.StatusInternalServerError)
+		return
+	} else {
+		fmt.Println("Zip created at:", zipPath)
+	}
+
+	// Return files list and zip download URL
+	w.Header().Set("Content-Type", "application/json")
+	fileResponse := []map[string]interface{}{}
+	for _, filePath := range uploadedFiles {
+		fileResponse = append(fileResponse, map[string]interface{}{
+			"id":   filepath.Base(filePath), // Use a unique ID
+			"name": filepath.Base(filePath),
+			"path": "/files/" + filepath.Base(filePath),
+		})
+	}
+	response := map[string]interface{}{
+		"files":       fileResponse,
+		"zipDownload": "/files/project.zip",
+	}
+	json.NewEncoder(w).Encode(response)
+
+}
+
+func listFilesHandler(w http.ResponseWriter, r *http.Request) {
+	uploadDir := "./uploads"
+	files, err := os.ReadDir(uploadDir)
+	if err != nil {
+		http.Error(w, "Failed to read upload directory: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var fileList []map[string]string
+	for _, file := range files {
+		if !file.IsDir() {
+			fileList = append(fileList, map[string]string{
+				"id":   file.Name(), // Use file name as the ID
+				"name": file.Name(),
+				"path": "/files/" + file.Name(),
+			})
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fileList)
 }
 
 func unzip(src string, dest string) error {
@@ -175,40 +250,38 @@ func unzip(src string, dest string) error {
 }
 
 func zipFiles(files []string, zipPath string) error {
-    newZipFile, err := os.Create(zipPath)
-    if err != nil {
-        return err
-    }
-    defer newZipFile.Close()
+	newZipFile, err := os.Create(zipPath)
+	if err != nil {
+		return err
+	}
+	defer newZipFile.Close()
 
-    zipWriter := zip.NewWriter(newZipFile)
-    defer zipWriter.Close()
+	zipWriter := zip.NewWriter(newZipFile)
+	defer zipWriter.Close()
 
-    for _, file := range files {
-        fileToZip, err := os.Open(file)
-        if err != nil {
-            return err
-        }
-        defer fileToZip.Close()
+	for _, file := range files {
+		fileToZip, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer fileToZip.Close()
 
-        writer, err := zipWriter.Create(filepath.Base(file))
-        if err != nil {
-            return err
-        }
+		writer, err := zipWriter.Create(filepath.Base(file))
+		if err != nil {
+			return err
+		}
 
-        _, err = io.Copy(writer, fileToZip)
-        if err != nil {
-            return err
-        }
-    }
+		_, err = io.Copy(writer, fileToZip)
+		if err != nil {
+			return err
+		}
+	}
 
-    return nil
+	return nil
 }
 
-
-
 func generateGoDockerfile(projectPath string) (string, error) {
-    dockerfileContent := `
+	dockerfileContent := `
 # Use the official Golang image to build the Go binary
 FROM golang:1.20-alpine as builder
 
@@ -242,18 +315,17 @@ EXPOSE 8080
 # Run the Go binary
 CMD ["./main"]
     `
-    dockerfilePath := filepath.Join(projectPath, "Dockerfile")
-    err := os.WriteFile(dockerfilePath, []byte(dockerfileContent), 0644)
-    if err != nil {
-        return "", err
-    }
-    return dockerfilePath, nil
+	dockerfilePath := filepath.Join(projectPath, "Dockerfile")
+	err := os.WriteFile(dockerfilePath, []byte(dockerfileContent), 0644)
+	if err != nil {
+		return "", err
+	}
+	return dockerfilePath, nil
 }
 
-
 func generateKubernetesManifests(projectPath string, imageName string) (string, string, error) {
-    // Deployment manifest content
-    deployment := fmt.Sprintf(`
+	// Deployment manifest content
+	deployment := fmt.Sprintf(`
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -275,8 +347,8 @@ spec:
             - containerPort: 8080
     `, imageName)
 
-    // Service manifest content
-    service := `
+	// Service manifest content
+	service := `
 apiVersion: v1
 kind: Service
 metadata:
@@ -290,18 +362,18 @@ spec:
       targetPort: 8080
   type: LoadBalancer
     `
-    deploymentPath := filepath.Join(projectPath, "deployment.yaml")
-    servicePath := filepath.Join(projectPath, "service.yaml")
+	deploymentPath := filepath.Join(projectPath, "deployment.yaml")
+	servicePath := filepath.Join(projectPath, "service.yaml")
 
-    err := os.WriteFile(deploymentPath, []byte(deployment), 0644)
-    if err != nil {
-        return "", "", err
-    }
+	err := os.WriteFile(deploymentPath, []byte(deployment), 0644)
+	if err != nil {
+		return "", "", err
+	}
 
-    err = os.WriteFile(servicePath, []byte(service), 0644)
-    if err != nil {
-        return "", "", err
-    }
+	err = os.WriteFile(servicePath, []byte(service), 0644)
+	if err != nil {
+		return "", "", err
+	}
 
-    return deploymentPath, servicePath, nil
+	return deploymentPath, servicePath, nil
 }

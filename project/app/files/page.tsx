@@ -29,10 +29,44 @@ export default function UploadFilesPage() {
   const handleDeployOnAWS = () => {
     console.log('Deploying on AWS...');
   };
-
-  const handleGenerateZip = () => {
-    console.log('Generating zip file...');
+  const downloadZip = async () => {
+    try {
+      console.log("Generating zip file...");
+  
+      // Fetch the zip file from the backend
+      const response = await fetch("/files/project.zip", {
+        method: "GET",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch the zip file.");
+      }
+  
+      // Convert the response into a Blob
+      const blob = await response.blob();
+  
+      // Create a URL for the Blob
+      const url = window.URL.createObjectURL(blob);
+  
+      // Create a temporary anchor tag
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "project.zip"; // Specify the file name
+  
+      // Append the link to the body and click it
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+  
+      console.log("Zip file downloaded.");
+    } catch (error) {
+      console.error("Error downloading zip file:", error);
+    }
   };
+  
 
   return (
     <div className="min-h-screen p-8">
@@ -56,7 +90,7 @@ export default function UploadFilesPage() {
               Deploy on AWS
             </button>
             <button
-              onClick={handleGenerateZip}
+              onClick={downloadZip}
               className="py-4 px-6 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 text-lg font-medium"
             >
               Generate Zip File

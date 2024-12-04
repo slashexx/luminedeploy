@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation"; // Import useRouter
-import { ArrowLeft, Github, Cloud, Monitor, Settings, Upload } from "lucide-react"; 
+import {
+  ArrowLeft,
+  Github,
+  Cloud,
+  Monitor,
+  Settings,
+  Upload,
+} from "lucide-react";
 import { ConfigCard } from "@/components/generate/ConfigCard";
 
 export default function GenerateConfigsPage() {
@@ -35,8 +42,12 @@ export default function GenerateConfigsPage() {
                 description="Configure your continuous integration and deployment pipelines"
                 icon={Settings}
                 items={[
-                  { name: "GitHub Actions", path: "/generate/github-actions", icon: Github },
-                  { name: "Jenkins", path: "/generate/jenkins", icon: Github },
+                  {
+                    name: "GitHub Actions",
+                    path: "/generate/github-actions",
+                    icon: Github,
+                  },
+                  { name: "Jenkins", path: "/generate/Jenkins", icon: Github },
                 ]}
               />
             </ConfigCardWrapper>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ConfigForm } from "@/components/generate/ConfigForm";
 
 export default function GitHubActionsPage() {
@@ -8,55 +9,67 @@ export default function GitHubActionsPage() {
       name: "workflowName",
       label: "Workflow Name",
       type: "text" as const,
-      placeholder: "CI/CD Workflow",
-      required: true,
+      Value: "CI/CD Workflow",
     },
     {
       name: "triggerEvents",
       label: "Trigger Events",
       type: "text" as const,
-      placeholder: "push, pull_request",
-      required: true,
+      Value: "push, pull_request",
     },
     {
       name: "goVersion",
       label: "Go Version",
       type: "text" as const,
-      placeholder: "1.18",
-      required: true,
+      Value: "1.18",
     },
     {
       name: "buildCommand",
       label: "Build Command",
       type: "text" as const,
-      placeholder: "go build -v",
-      required: true,
+      Value: "go build -v",
     },
     {
       name: "testCommand",
       label: "Test Command",
       type: "text" as const,
-      placeholder: "go test -v",
-      required: true,
+      Value: "go test -v",
     },
   ];
 
-  const handleSubmit = () => {}
-  // const handleSubmit = async (data: Record<string, string>) => {
-  //   console.log("GitHub Actions config:", data);
-    
-  //   // You can make a request to your backend with these data, for example:
-  //   const response = await fetch('/generate-github-action', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(data),
-  //   });
+  const [responseMessage, setResponseMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  //   const yaml = await response.text();
-  //   console.log("Generated YAML:", yaml);
-  // };
+  const handleSubmit = async (data: Record<string, string>) => {
+    setResponseMessage(""); // Clear any previous success message
+    setErrorMessage(""); // Clear any previous error message
+
+    try {
+      const response = await fetch("http://localhost:8080/api/generate-github-actions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.text(); // Assuming the backend sends the YAML as plain text
+        setResponseMessage("GitHub Actions YAML generated successfully!");
+        console.log("Generated YAML:", result); // You can display this or save it
+      } else {
+        const errorResult = await response.json();
+        setErrorMessage(
+          errorResult.message || "Failed to generate GitHub Actions workflow"
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage(
+        "An unexpected error occurred while generating the GitHub Actions workflow."
+      );
+    }
+  };
 
   return (
     <div className="container px-4 py-6">
@@ -66,6 +79,12 @@ export default function GitHubActionsPage() {
         fields={fields}
         onSubmit={handleSubmit}
       />
+      {responseMessage && (
+        <div className="mt-4 text-green-600">{responseMessage}</div>
+      )}
+      {errorMessage && (
+        <div className="mt-4 text-red-600">{errorMessage}</div>
+      )}
     </div>
   );
 }

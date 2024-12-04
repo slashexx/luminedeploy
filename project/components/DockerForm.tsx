@@ -1,8 +1,8 @@
-"use client"
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Input } from '@/components/Input';
-import { Button } from '@/components/Button';
+"use client";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/Input";
+import { Button } from "@/components/Button";
 
 interface DockerFormData {
   username: string;
@@ -22,9 +22,25 @@ export const DockerForm = () => {
   const onSubmit = async (data: DockerFormData) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Form submitted:', data);
+      const response = await fetch("http://localhost:8080/api/docker-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+
+      const result = await response.json();
+      console.log("Login successful:", result);
+      alert("Login successful!");
+    } catch (error) {
+      console.error("Error:", error);
+      // alert("Login failed: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -34,11 +50,11 @@ export const DockerForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Input
         label="Docker Hub Username"
-        {...register('username', {
-          required: 'Username is required',
+        {...register("username", {
+          required: "Username is required",
           minLength: {
             value: 4,
-            message: 'Username must be at least 4 characters',
+            message: "Username must be at least 4 characters",
           },
         })}
         error={errors.username?.message}
@@ -48,11 +64,11 @@ export const DockerForm = () => {
       <Input
         label="Password"
         type="password"
-        {...register('password', {
-          required: 'Password is required',
+        {...register("password", {
+          required: "Password is required",
           minLength: {
             value: 8,
-            message: 'Password must be at least 8 characters',
+            message: "Password must be at least 8 characters",
           },
         })}
         error={errors.password?.message}
@@ -61,11 +77,7 @@ export const DockerForm = () => {
         autoComplete="current-password"
       />
 
-      <Button
-        type="submit"
-        className="w-full"
-        isLoading={isLoading}
-      >
+      <Button type="submit" className="w-full" isLoading={isLoading}>
         Sign In
       </Button>
     </form>

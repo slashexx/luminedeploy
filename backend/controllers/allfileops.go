@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"archive/zip"
@@ -9,27 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gorilla/mux"
+	// "github.com/gorilla/mux"
 )
 
-func enableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Allow all origins (change to specific origin if needed)
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 
-		// Handle preflight requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
 
 func detectGoProject(files []string) (bool, string, error) {
 	var hasGoMod, hasMainGo bool
@@ -58,21 +41,8 @@ func detectGoProject(files []string) (bool, string, error) {
 	return false, "", fmt.Errorf("incomplete Go project")
 }
 
-func main() {
-	r := mux.NewRouter()
 
-	// Route to handle file uploads
-	r.HandleFunc("/upload", uploadHandler).Methods("POST")
-	r.HandleFunc("/files", listFilesHandler).Methods("GET")
-	// r.PathPrefix("/files/").Handler(http.StripPrefix("/files/", http.FileServer(http.Dir("./uploads"))))
-
-	// Start the server
-	fmt.Println("Server running on :8080")
-	handler := enableCORS(r)
-	http.ListenAndServe(":8080", handler)
-}
-
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	uploadDir := "./uploads"
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		http.Error(w, "Failed to create uploads directory", http.StatusInternalServerError)
@@ -186,7 +156,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func listFilesHandler(w http.ResponseWriter, r *http.Request) {
+func ListFilesHandler(w http.ResponseWriter, r *http.Request) {
 	uploadDir := "./uploads"
 	files, err := os.ReadDir(uploadDir)
 	if err != nil {

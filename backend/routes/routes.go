@@ -16,6 +16,9 @@ import (
 
 func RegisterRoutes(r *mux.Router) {
 
+	r.HandleFunc("/upload", controllers.UploadHandler).Methods("POST")
+	r.HandleFunc("/files", controllers.ListFilesHandler).Methods("GET")
+
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/generate-github-actions", controllers.GitHubActionHandler).Methods("POST")
 	api.HandleFunc("/generate-jenkinsfile", controllers.GenerateJenkinsFile).Methods("POST")
@@ -26,6 +29,7 @@ func RegisterRoutes(r *mux.Router) {
 	api.HandleFunc("/setup-sss-config", controllers.GenerateS3Config).Methods("POST")
 	api.HandleFunc("/download-zip", controllers.HandleDownloadZip).Methods("GET")
 	api.HandleFunc("/docker-deploy", controllers.HandleDockerDeploy).Methods("POST")
+
 
 	// Health check route
 	api.HandleFunc("/health", HealthCheck).Methods("GET")

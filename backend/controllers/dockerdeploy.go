@@ -3,8 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	// "github.com/gorilla/mux"
-	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,99 +10,69 @@ import (
 )
 
 func HandleDockerDeploy(w http.ResponseWriter, r *http.Request) {
-	// Parse multipart form (for credentials + file upload)
-	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	// Parse the request for Docker credentials and image tag
+	type DockerCredentials struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		ImageTag string `json:"image_tag"` // e.g., "username/repository:tag"
+	}
+
+	var creds DockerCredentials
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		http.Error(w, "Invalid request body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Validate inputs
+	if creds.Username == "" || creds.Password == "" || creds.ImageTag == "" {
+		http.Error(w, "Missing required fields (username, password, image_tag)", http.StatusBadRequest)
+		return
+	}
+
+	// Path to the output folder
+	outputPath := filepath.Join("file", "output")
+	if _, err := os.Stat(outputPath); os.IsNotExist(err) {
+		http.Error(w, "Output folder does not exist", http.StatusInternalServerError)
+		return
+	}
+
+	// Step 1: Docker login
+	cmdLogin := exec.Command("docker", "login", "-u", creds.Username, "-p", creds.Password)
+	cmdLogin.Dir = outputPath
+	loginOutput, err := cmdLogin.CombinedOutput()
 	if err != nil {
-		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Failed to log in to Docker Hub: "+string(loginOutput), http.StatusInternalServerError)
 		return
 	}
 
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	if username == "" || password == "" {
-		http.Error(w, "Missing Docker Hub credentials", http.StatusBadRequest)
-		return
-	}
-
-	files := r.MultipartForm.File["files"]
-	if len(files) == 0 {
-		http.Error(w, "No files provided", http.StatusBadRequest)
-		return
-	}
-
-	// Save uploaded files
-	uploadDir := "./uploads"
-	os.MkdirAll(uploadDir, os.ModePerm)
-
-	for _, fileHeader := range files {
-		file, err := fileHeader.Open()
-		if err != nil {
-			http.Error(w, "Failed to open file: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		destPath := filepath.Join(uploadDir, fileHeader.Filename)
-		out, err := os.Create(destPath)
-		if err != nil {
-			http.Error(w, "Failed to save file: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer out.Close()
-
-		io.Copy(out, file)
-	}
-
-	// Ensure Dockerfile exists
-	dockerfilePath := filepath.Join(uploadDir, "Dockerfile")
-	if _, err := os.Stat(dockerfilePath); os.IsNotExist(err) {
-		http.Error(w, "Dockerfile not found in uploaded files", http.StatusBadRequest)
-		return
-	}
-
-	// Docker login
-	loginCmd := exec.Command("docker", "login", "-u", username, "--password-stdin")
-	loginStdin, err := loginCmd.StdinPipe()
+	// Step 2: Docker build
+	cmdBuild := exec.Command("docker", "build", "-t", creds.ImageTag, ".")
+	cmdBuild.Dir = outputPath
+	buildOutput, err := cmdBuild.CombinedOutput()
 	if err != nil {
-		http.Error(w, "Failed to create stdin pipe for login: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	go func() {
-		defer loginStdin.Close()
-		io.WriteString(loginStdin, password)
-	}()
-
-	loginCmd.Stdout = os.Stdout
-	loginCmd.Stderr = os.Stderr
-	if err = loginCmd.Run(); err != nil {
-		http.Error(w, "Docker login failed: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to build Docker image: "+string(buildOutput), http.StatusInternalServerError)
 		return
 	}
 
-	// Build Docker image
-	imageName := fmt.Sprintf("%s/custom-app:latest", username)
-	buildCmd := exec.Command("docker", "build", "-t", imageName, uploadDir)
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
-	if err = buildCmd.Run(); err != nil {
-		http.Error(w, "Docker build failed: "+err.Error(), http.StatusInternalServerError)
+	// Step 3: Docker push
+	cmdPush := exec.Command("docker", "push", creds.ImageTag)
+	cmdPush.Dir = outputPath
+	pushOutput, err := cmdPush.CombinedOutput()
+	if err != nil {
+		http.Error(w, "Failed to push Docker image: "+string(pushOutput), http.StatusInternalServerError)
 		return
 	}
 
-	// Push Docker image
-	pushCmd := exec.Command("docker", "push", imageName)
-	pushCmd.Stdout = os.Stdout
-	pushCmd.Stderr = os.Stderr
-	if err = pushCmd.Run(); err != nil {
-		http.Error(w, "Docker push failed: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// Step 4: Cleanup (optional)
+	// Uncomment if you want to remove local images after pushing
+	// cmdCleanup := exec.Command("docker", "rmi", creds.ImageTag)
+	// cleanupOutput, err := cmdCleanup.CombinedOutput()
+	// if err != nil {
+	// 	http.Error(w, "Failed to clean up local Docker image: "+string(cleanupOutput), http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// Respond with success
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Deployment successful",
-		"image":   imageName,
-	})
+	w.Write([]byte(fmt.Sprintf("Successfully built and pushed image '%s' to Docker Hub", creds.ImageTag)))
 }

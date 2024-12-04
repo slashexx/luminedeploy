@@ -8,11 +8,11 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 export default function UploadFilesPage() {
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await fetch('/api/files');
+        const response = await fetch('http://localhost:8080/files');
         if (!response.ok) throw new Error('Failed to fetch files');
         const data = await response.json();
         setFiles(data);

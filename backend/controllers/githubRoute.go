@@ -5,12 +5,12 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	// "io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	// "strings"
+	"strings"
 	"text/template"
 )
 
@@ -36,7 +36,7 @@ func hashFiles(pattern string) (string, error) {
 		// Match the file pattern (in this case, files like go.sum)
 		if match, _ := filepath.Match(pattern, path); match && !info.IsDir() {
 			// Read the file contents and append to the fileContents slice
-			content, err := ioutil.ReadFile(path)
+			content, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
@@ -84,9 +84,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: go-${{ runner.os }}-go-{{ .CacheKey }}
+          key: go-<runner_os>-go-{{ .CacheKey }}
           restore-keys: |
-            go-${{ runner.os }}-
+            go-<runner_os>-
 
       - name: Install dependencies
         run: go mod tidy
@@ -138,18 +138,26 @@ func GitHubActionHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate the GitHub Actions YAML
 	finalYAML := generateGitHubActionYAML(params)
 
+	// Replace <runner_os> with ${{ runner.os }} in the final YAML
+	finalYAML = strings.ReplaceAll(finalYAML, "<runner_os>", "${{ runner.os }}")
+
+	// Debugging: Log YAML after replacement
+	log.Println("Generated YAML after <runner_os> replacement:")
+	log.Println(finalYAML)
+
 	// Write the final YAML to the response
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(finalYAML))
 
-	// Optionally, you can save the YAML to a file (e.g., github_action.yml)
-	err = ioutil.WriteFile("github_action.yml", []byte(finalYAML), 0644)
+	// Optionally, save the YAML to a file
+	err = os.WriteFile("github_action.yml", []byte(finalYAML), 0644)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error writing file: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	// Confirmation message
-	fmt.Printf("GitHub Action YAML has been generated and written to github_action.yml\n")
+	fmt.Println("GitHub Action YAML has been generated and written to github_action.yml")
 }
+
+

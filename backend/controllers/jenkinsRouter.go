@@ -3,7 +3,8 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	// "io/ioutil"
+	"os"
 	"log"
 	"text/template"
 	"net/http"
@@ -111,7 +112,7 @@ func GenerateJenkinsFile(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(jenkinsfile))
 
 	// Optionally, save the Jenkinsfile to a file (for example, "Jenkinsfile")
-	err := ioutil.WriteFile("Jenkinsfile", []byte(jenkinsfile), 0644)
+	err := os.WriteFile("Jenkinsfile", []byte(jenkinsfile), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -11,11 +11,11 @@ import (
 
 // Struct to hold user input for Dockerfile generation
 type DockerfileConfig struct {
-	BaseImage       string `json:"baseImage"`
+	BaseImage        string `json:"baseImage"`
 	WorkingDirectory string `json:"workingDirectory"`
-	CopyCommand     string `json:"copyCommand"`
-	InstallCommand  string `json:"installCommand"`
-	StartCommand    string `json:"startCommand"`
+	CopyCommand      string `json:"copyCommand"`
+	InstallCommand   string `json:"installCommand"`
+	StartCommand     string `json:"startCommand"`
 }
 
 // GenerateGoDockerfile handles generating the Dockerfile based on user input

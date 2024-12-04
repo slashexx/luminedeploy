@@ -43,7 +43,7 @@ export default function GitHubActionsPage() {
   const handleSubmit = async (data: Record<string, string>) => {
     setResponseMessage(""); // Clear any previous success message
     setErrorMessage(""); // Clear any previous error message
-
+  
     try {
       const response = await fetch("http://localhost:8080/api/generate-github-actions", {
         method: "POST",
@@ -52,11 +52,21 @@ export default function GitHubActionsPage() {
         },
         body: JSON.stringify(data),
       });
-
+  
       if (response.ok) {
-        const result = await response.text(); // Assuming the backend sends the YAML as plain text
-        setResponseMessage("GitHub Actions YAML generated successfully!");
-        console.log("Generated YAML:", result); // You can display this or save it
+        // Create a Blob from the response
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+  
+        // Create an anchor element and trigger the download
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ci.yml"; // Force the .yml extension
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+  
+        setResponseMessage("GitHub Actions YAML generated and downloaded successfully!");
       } else {
         const errorResult = await response.json();
         setErrorMessage(
@@ -70,6 +80,7 @@ export default function GitHubActionsPage() {
       );
     }
   };
+  
 
   return (
     <div className="container px-4 py-6">

@@ -44,36 +44,33 @@ export default function DockerfilePage() {
   const handleSubmit = async (data: Record<string, string>) => {
     setResponseMessage(""); // Clear any previous messages
     setErrorMessage("");
-
+  
     try {
-      const res = await fetch(
-        "http://localhost:8080/api/generate-go-dockerfile",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      // Check if the response is JSON
+      const res = await fetch("http://localhost:8080/api/generate-go-dockerfile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
       if (res.ok) {
-        const result = await res.json();
-        setResponseMessage(
-          result.message || "Dockerfile generated successfully!"
-        );
+        // Create a Blob from the response
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+  
+        // Force download with the correct file name
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Dockerfile"; // Ensure the file is named Dockerfile
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+  
+        setResponseMessage("Dockerfile generated and ready for download!");
       } else {
-        // Try to parse error message if returned as JSON
-        try {
-          const errorResult = await res.json();
-          setErrorMessage(
-            `Error: ${errorResult.message || "Failed to generate Dockerfile"}`
-          );
-        } catch {
-          // If not JSON, use plain text or status
-          setErrorMessage(`Error: ${res.status} - ${res.statusText}`);
-        }
+        const errorResult = await res.text();
+        setErrorMessage(`Error: ${errorResult}`);
       }
     } catch (error) {
       console.error("Error generating Dockerfile:", error);
@@ -82,6 +79,7 @@ export default function DockerfilePage() {
       );
     }
   };
+  
 
   return (
     <div className="container px-4 py-6">

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
+	// "os"
+	// "path/filepath"
 )
 
 // Struct to hold user input for Dockerfile generation
@@ -46,7 +46,7 @@ func GenerateGoDockerfile(w http.ResponseWriter, r *http.Request) {
 		config.StartCommand = "CMD [\"./app\"]"
 	}
 
-	// Dockerfile content using the user-defined or default values
+	// Generate the Dockerfile content
 	dockerfileContent := fmt.Sprintf(`# Stage 1: Build
 FROM %s AS builder
 WORKDIR %s
@@ -61,34 +61,16 @@ COPY --from=builder %s/app .
 %s
 `, config.BaseImage, config.WorkingDirectory, config.CopyCommand, config.InstallCommand, config.WorkingDirectory, config.StartCommand)
 
-	// Default project directory
-	projectPath := "./aiseHi" // Modify this path as needed
+	// Set response headers
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", `attachment; filename="Dockerfile"`)
 
-	// Ensure the directory exists
-	err = os.MkdirAll(projectPath, os.ModePerm)
+	// Write the Dockerfile content to the response
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write([]byte(dockerfileContent))
 	if err != nil {
-		log.Fatalf("Failed to create directory %s: %v", projectPath, err)
+		log.Printf("Error writing Dockerfile content: %v", err)
+		http.Error(w, "Failed to generate Dockerfile", http.StatusInternalServerError)
+		return
 	}
-
-	// Write the Dockerfile
-	dockerfilePath := filepath.Join(projectPath, "Dockerfile")
-	file, err := os.Create(dockerfilePath)
-	if err != nil {
-		log.Fatalf("Failed to create Dockerfile: %v", err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(dockerfileContent)
-	if err != nil {
-		log.Fatalf("Failed to write Dockerfile content: %v", err)
-	}
-
-	log.Println("Dockerfile successfully created in:", projectPath)
-
-	// Respond to the client that the Dockerfile has been created
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Dockerfile successfully created",
-		"path":    dockerfilePath,
-	})
 }

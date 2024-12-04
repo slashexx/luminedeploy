@@ -141,23 +141,14 @@ func GitHubActionHandler(w http.ResponseWriter, r *http.Request) {
 	// Replace <runner_os> with ${{ runner.os }} in the final YAML
 	finalYAML = strings.ReplaceAll(finalYAML, "<runner_os>", "${{ runner.os }}")
 
-	// Debugging: Log YAML after replacement
-	log.Println("Generated YAML after <runner_os> replacement:")
-	log.Println(finalYAML)
-
-	// Write the final YAML to the response
-	w.Header().Set("Content-Type", "text/plain")
+	// Set the response headers to prompt a download
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"ci.yml\"")
 	w.WriteHeader(http.StatusOK)
+
+	// Write the YAML content to the response
 	w.Write([]byte(finalYAML))
-
-	// Optionally, save the YAML to a file
-	err = os.WriteFile("github_action.yml", []byte(finalYAML), 0644)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing file: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println("GitHub Action YAML has been generated and written to github_action.yml")
 }
+
 
 

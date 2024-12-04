@@ -26,9 +26,11 @@ export default function UploadFilesPage() {
     fetchFiles();
   }, []);
 
-  const handleDeployOnAWS = () => {
+  const handleDeployOnDockerHub = () => {
     console.log('Deploying on AWS...');
   };
+
+
   const downloadZip = async () => {
     try {
       console.log("Generating zip file...");
@@ -84,10 +86,10 @@ export default function UploadFilesPage() {
         {!loading && (
           <div className="grid grid-cols-2 gap-6 mt-8">
             <button
-              onClick={handleDeployOnAWS}
+              onClick={handleDeployOnDockerHub}
               className="py-4 px-6 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 text-lg font-medium"
             >
-              Deploy on AWS
+              Deploy on DockerHub
             </button>
             <button
               onClick={downloadZip}

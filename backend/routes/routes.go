@@ -25,6 +25,7 @@ func RegisterRoutes(r *mux.Router) {
 	api.HandleFunc("/setup-eks-config", controllers.GenerateEKSConfig).Methods("POST")
 	api.HandleFunc("/setup-sss-config", controllers.GenerateS3Config).Methods("POST")
 	api.HandleFunc("/download-zip", controllers.HandleDownloadZip).Methods("GET")
+	api.HandleFunc("/docker-deploy", controllers.HandleDockerDeploy).Methods("POST")
 
 	// Health check route
 	api.HandleFunc("/health", HealthCheck).Methods("GET")

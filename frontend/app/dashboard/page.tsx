@@ -1,9 +1,11 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Cloud, Shield, Zap } from "lucide-react";
 import Link from "next/link";
-import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
+// import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
 import CostOverview from "@/components/dashboard/CostOverview";
 import DeploymentStatus from "@/components/dashboard/DeploymentStatus";
 import SecurityOverview from "@/components/dashboard/SecurityOverview";

@@ -102,7 +102,7 @@ export default function Home() {
             <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
           <TabsContent value="metrics">
-            <DashboardMetrics />
+            {/* <DashboardMetrics /> */}
           </TabsContent>
           <TabsContent value="costs">
             <CostOverview />

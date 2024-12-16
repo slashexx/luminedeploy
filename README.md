@@ -40,6 +40,12 @@ To start the CLI tool, simply run:
 go run main.go
 ```
 
+## OR, run the one-click install command ! 
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nexusrex18/lumine/main/install.sh | bash
+```
+
 The program will prompt you to select the services you want to configure. Follow the interactive menu to:
 
 - Set up CI/CD

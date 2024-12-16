@@ -22,22 +22,22 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-6">
             <Link href="/docs">
-              <Button variant="ghost" className="text-sm">
+              {/* <Button variant="ghost" className="text-sm"> */}
                 Documentation
-              </Button>
+              {/* </Button> */}
             </Link>
             <Link href="/generate">
-              <Button variant="ghost" className="text-sm">
+              {/* <Button variant="ghost" className="text-sm"> */}
                 Generate
-              </Button>
+              {/* </Button> */}
             </Link>
             <Link href="/login">
-              <Button variant="ghost" className="text-sm">
+              {/* <Button variant="ghost" className="text-sm"> */}
                 Sign In
-              </Button>
+              {/* </Button> */}
             </Link>
             <Link href="/signup">
-              <Button className="text-sm">Get Started</Button>
+              {/* <Button className="text-sm">Get Started</Button> */}
             </Link>
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
-          <Card className="p-4">
+          {/* <Card className="p-4">
             <div className="flex items-center space-x-2">
               <Cloud className="h-5 w-5 text-primary" />
               <span className="font-medium">Infrastructure</span>
@@ -91,10 +91,10 @@ export default function Home() {
               <div className="text-2xl font-bold">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
             </div>
-          </Card>
+          </Card> */}
         </div>
 
-        <Tabs defaultValue="metrics" className="mt-6">
+        {/* <Tabs defaultValue="metrics" className="mt-6">
           <TabsList>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
             <TabsTrigger value="costs">Costs</TabsTrigger>
@@ -103,7 +103,7 @@ export default function Home() {
           </TabsList>
           <TabsContent value="metrics">
             {/* <DashboardMetrics /> */}
-          </TabsContent>
+          {/* </TabsContent>
           <TabsContent value="costs">
             <CostOverview />
           </TabsContent>
@@ -113,7 +113,7 @@ export default function Home() {
           <TabsContent value="security">
             <SecurityOverview />
           </TabsContent>
-        </Tabs>
+        </Tabs> */} */}
       </div>
     </main>
     </>

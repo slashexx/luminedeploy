@@ -21,7 +21,7 @@ export class DockerForm extends Component<{}, DockerFormState> {
     password: "",
     showPassword: false,
     isLoading: false,
-    errors: {}, // Errors is explicitly typed as Record<string, string | undefined>
+    errors: Object.create(null),  // Errors is explicitly typed as Record<string, string | undefined>
   };
 
   validateForm = (): boolean => {

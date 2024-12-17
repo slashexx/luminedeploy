@@ -11,8 +11,9 @@ interface DockerFormData {
 interface DockerFormState extends DockerFormData {
   showPassword: boolean;
   isLoading: boolean;
-  errors: { username?: string; password?: string };
+  errors: Record<string, string | undefined>; // Explicitly typing errors
 }
+
 
 export class DockerForm extends Component<{}, DockerFormState> {
   state: DockerFormState = {

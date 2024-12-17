@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
-import { useRouter } from "next/router";
 
 const UploadZone = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const router = useRouter();
 
   const onDrop = async (acceptedFiles: File[]) => {
     setIsUploading(true);
@@ -28,7 +26,8 @@ const UploadZone = () => {
       if (response.ok) {
         console.log("Request has been sent");
 
-        router.push("/files"); // Using router.push to navigate after upload
+        // Redirect after successful upload
+        window.location.href = "/files"; // Use window.location for redirect
       } else {
         throw new Error("Upload failed. Please try again.");
       }

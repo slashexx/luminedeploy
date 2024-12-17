@@ -16,13 +16,17 @@ interface DockerFormState extends DockerFormData {
 
 
 export class DockerForm extends Component<{}, DockerFormState> {
-  state: DockerFormState = {
-    username: "",
-    password: "",
-    showPassword: false,
-    isLoading: false,
-    errors: {} as Record<string, string | undefined>, // Explicitly type errors here
-  };
+
+  /* eslint-disable @typescript-eslint/no-empty-object-type */
+state: DockerFormState = {
+  username: "",
+  password: "",
+  showPassword: false,
+  isLoading: false,
+  errors: {},
+};
+/* eslint-enable @typescript-eslint/no-empty-object-type */
+
   
 
   validateForm = (): boolean => {

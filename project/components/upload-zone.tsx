@@ -5,7 +5,6 @@ import { Upload, Loader2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
 import { useRouter } from "next/router";
-import Link from "next/link";
 // import axios from "axios";
 
 export default class UploadZone extends React.Component {

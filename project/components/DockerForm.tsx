@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 
+// Define the types for the form data
 interface DockerFormData {
   username: string;
   password: string;
@@ -11,7 +12,7 @@ interface DockerFormData {
 interface DockerFormState extends DockerFormData {
   showPassword: boolean;
   isLoading: boolean;
-  errors: Record<string, string | undefined>; // Correct type for errors
+  errors: Record<string, string | undefined>; // Explicit typing for errors
 }
 
 export class DockerForm extends Component<{}, DockerFormState> {
@@ -20,18 +21,20 @@ export class DockerForm extends Component<{}, DockerFormState> {
     password: "",
     showPassword: false,
     isLoading: false,
-    errors: {}, // Empty object is fine with the correct type
+    errors: {}, // Errors is explicitly typed as Record<string, string | undefined>
   };
 
   validateForm = (): boolean => {
-    const errors: { username?: string; password?: string } = {};
+    const errors: Record<string, string | undefined> = {}; // Correct type for errors
     let isValid = true;
 
+    // Validate username
     if (this.state.username.trim().length < 4) {
       errors.username = "Username must be at least 4 characters";
       isValid = false;
     }
 
+    // Validate password
     if (this.state.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
       isValid = false;

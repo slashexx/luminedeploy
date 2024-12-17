@@ -21,13 +21,14 @@ const UploadZone = () => {
     console.log("Accepted Files: ", acceptedFiles);
 
     try {
-      const response = await fetch("http://localhost:8080/upload", { // Replace with your backend URL
+      const response = await fetch("http://localhost:8080/upload", {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
         console.log("Request has been sent");
-        router.push("/files"); // Using router.push instead of window.location.href
+
+        router.push("/files"); // Using router.push to navigate after upload
       } else {
         throw new Error("Upload failed. Please try again.");
       }
@@ -46,7 +47,7 @@ const UploadZone = () => {
       >
         <input
           type="file"
-          onChange={(e) => onDrop(Array.from(e.target.files || []))}  // Convert FileList to File[]
+          onChange={(e) => onDrop(Array.from(e.target.files || []))}
           disabled={isUploading}
           multiple
         />

@@ -1,14 +1,14 @@
 'use client';
 
-// import { Button } from "@/components/ui/button";
-// import { Card } from "@/components/ui/card";
-// // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Cloud, Shield, Zap } from "lucide-react";
 import Link from "next/link";
-// import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
-// import CostOverview from "@/components/dashboard/CostOverview";
-// import DeploymentStatus from "@/components/dashboard/DeploymentStatus";
-// import SecurityOverview from "@/components/dashboard/SecurityOverview";
+import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
+import CostOverview from "@/components/dashboard/CostOverview";
+import DeploymentStatus from "@/components/dashboard/DeploymentStatus";
+import SecurityOverview from "@/components/dashboard/SecurityOverview";
 
 export default function Home() {
   return (
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
-          {/* <Card className="p-4">
+          <Card className="p-4">
             <div className="flex items-center space-x-2">
               <Cloud className="h-5 w-5 text-primary" />
               <span className="font-medium">Infrastructure</span>
@@ -91,10 +91,10 @@ export default function Home() {
               <div className="text-2xl font-bold">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
             </div>
-          </Card> */}
+          </Card>
         </div>
 
-        {/* <Tabs defaultValue="metrics" className="mt-6">
+        <Tabs defaultValue="metrics" className="mt-6">
           <TabsList>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
             <TabsTrigger value="costs">Costs</TabsTrigger>
@@ -103,7 +103,7 @@ export default function Home() {
           </TabsList>
           <TabsContent value="metrics">
             {/* <DashboardMetrics /> */}
-          {/* </TabsContent>
+          </TabsContent>
           <TabsContent value="costs">
             <CostOverview />
           </TabsContent>
@@ -113,7 +113,7 @@ export default function Home() {
           <TabsContent value="security">
             <SecurityOverview />
           </TabsContent>
-        </Tabs> */} */}
+        </Tabs>  
       </div>
     </main>
     </>

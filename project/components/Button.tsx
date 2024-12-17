@@ -31,3 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
+
+function joinClasses(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}

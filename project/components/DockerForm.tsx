@@ -11,23 +11,17 @@ interface DockerFormData {
 interface DockerFormState extends DockerFormData {
   showPassword: boolean;
   isLoading: boolean;
-  errors: Record<string, string | undefined>; // Explicitly typing errors
+  errors: Record<string, string | undefined>; // Correct type for errors
 }
 
-
 export class DockerForm extends Component<{}, DockerFormState> {
-
-  /* eslint-disable @typescript-eslint/no-empty-object-type */
-state: DockerFormState = {
-  username: "",
-  password: "",
-  showPassword: false,
-  isLoading: false,
-  errors: {},
-};
-/* eslint-enable @typescript-eslint/no-empty-object-type */
-
-  
+  state: DockerFormState = {
+    username: "",
+    password: "",
+    showPassword: false,
+    isLoading: false,
+    errors: {}, // Empty object is fine with the correct type
+  };
 
   validateForm = (): boolean => {
     const errors: { username?: string; password?: string } = {};

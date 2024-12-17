@@ -22,22 +22,22 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-6">
             <Link href="/docs">
-              {/* <Button variant="ghost" className="text-sm"> */}
+              <Button variant="ghost" className="text-sm">
                 Documentation
-              {/* </Button> */}
+              </Button>
             </Link>
             <Link href="/generate">
-              {/* <Button variant="ghost" className="text-sm"> */}
+              <Button variant="ghost" className="text-sm">
                 Generate
-              {/* </Button> */}
+              </Button>
             </Link>
             <Link href="/login">
-              {/* <Button variant="ghost" className="text-sm"> */}
+              <Button variant="ghost" className="text-sm">
                 Sign In
-              {/* </Button> */}
+              </Button>
             </Link>
             <Link href="/signup">
-              {/* <Button className="text-sm">Get Started</Button> */}
+              <Button className="text-sm">Get Started</Button>
             </Link>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function Home() {
             <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
           <TabsContent value="metrics">
-            {/* <DashboardMetrics /> */}
+            <DashboardMetrics />
           </TabsContent>
           <TabsContent value="costs">
             <CostOverview />
